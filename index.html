@@ -213,14 +213,14 @@ button{font:inherit; color:inherit}
 .entrance.static .beat.b2,.entrance.static .beat.b3{display:none}
 
 /* ---------- Store top bar ---------- */
-body::before{content:""; position:fixed; inset:0 0 auto; height:env(safe-area-inset-top,0px); z-index:10; background:var(--ink)}
-.topbar{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; background:var(--ink); color:var(--bg)}
+body::before{content:""; position:fixed; inset:0 0 auto; height:env(safe-area-inset-top,0px); z-index:10; background:#241B33}
+.topbar{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; background:#241B33; color:#FFF8EC}
 .topbar .wrap{display:flex; align-items:center; gap:12px; padding-block:10px}
 .logo{font-family:var(--font-display); font-weight:700; font-size:1.5rem; color:var(--sun); background:none; border:0; cursor:pointer; padding:0}
 .logo em{font-style:normal; color:var(--coral)}
 .topbar .spacer{flex:1}
-.topbar .tb{background:transparent; border:2px solid rgba(255,255,255,.25); color:var(--bg); border-radius:999px; padding:6px 14px; cursor:pointer; font-weight:700; font-size:.9rem}
-:root[data-contrast="high"] .topbar .tb{border-color:var(--bg)}
+.topbar .tb{background:transparent; border:2px solid rgba(255,255,255,.25); color:#FFF8EC; border-radius:999px; padding:6px 14px; cursor:pointer; font-weight:700; font-size:.9rem}
+:root[data-contrast="high"] .topbar .tb{border-color:#FFF8EC}
 .topbar .tb:hover{border-color:var(--sun)}
 
 /* ---------- Store scene ---------- */
@@ -428,9 +428,58 @@ label.fl{display:block; font-weight:800; margin-bottom:6px}
 .links li{background:var(--surface); border:2px solid var(--line); border-radius:16px; padding:12px 16px}
 .links span{display:block; font-size:.93rem; color:var(--ink2)}
 
+/* ---------- Aisle walk: the strip ----------
+   Once the shop floor scrolls away, a slim aisle stays pinned under the top bar.
+   Your reading position is your place in the aisle: the shelves pan past, Shelby
+   walks along the floor, and each section is a hanging bay tag that stays lit once passed. */
+.strip{position:fixed; left:0; right:0; top:calc(env(safe-area-inset-top,0px) + var(--tb-h,59px)); z-index:19; height:76px; overflow:hidden;
+  background:linear-gradient(180deg,var(--wall),var(--wall2)); border-bottom:4px solid var(--wood2); box-shadow:0 10px 18px -6px var(--shadow);
+  transform:translateY(-140%); visibility:hidden; transition:transform .45s var(--ease-bounce),visibility 0s .45s; --sp:0; --pad:max(28px,4vw)}
+body.scene-away .strip{transform:none; visibility:visible; transition:transform .45s var(--ease-bounce)}
+.strip-far{position:absolute; left:0; top:8px; height:44px; width:200%; opacity:.5; transform:translateX(calc(var(--sp) * -28%));
+  background:repeating-linear-gradient(90deg,var(--coral) 0 9px,var(--teal) 9px 18px,var(--sun) 18px 27px,var(--lilac) 27px 36px,var(--mint) 36px 45px,var(--sky) 45px 54px,transparent 54px 60px);
+  -webkit-mask:repeating-linear-gradient(180deg,#000 0 16px,transparent 16px 22px); mask:repeating-linear-gradient(180deg,#000 0 16px,transparent 16px 22px)}
+.strip-floor{position:absolute; left:0; bottom:0; height:16px; width:200%; transform:translateX(calc(var(--sp) * -50%));
+  background:repeating-linear-gradient(90deg,var(--floor) 0 58px,var(--floor2) 58px 60px); border-top:3px solid var(--wood2)}
+.strip-bays{position:absolute; left:var(--pad); right:var(--pad); top:0; height:44px}
+.bay{--c:var(--coral); position:absolute; top:0; left:calc(var(--f,0) * 100%); width:28px; height:44px; margin-left:-14px; padding:0; border:0; background:none; cursor:pointer; display:flex; flex-direction:column; align-items:center}
+.bay::before{content:""; width:2px; height:12px; background:var(--ink2); opacity:.55}
+.bay i{display:block; width:18px; height:24px; border-radius:4px 4px 7px 7px; border:2.5px solid var(--c); background:var(--surface); transition:background .25s,transform .25s var(--ease-bounce),box-shadow .25s}
+.bay.passed i{background:var(--c)}
+.bay.here i{transform:scale(1.2); box-shadow:0 0 0 3px var(--sun)}
+.strip-walker{position:absolute; left:0; bottom:5px; width:50px; transform:translateX(var(--sx,0px)); will-change:transform}
+.strip-say{position:absolute; left:100%; bottom:24px; margin-left:4px; max-width:min(260px,52vw); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; background:var(--surface); color:var(--ink); font-weight:800; font-size:.8rem; padding:4px 10px; border-radius:10px; box-shadow:0 4px 10px var(--shadow); opacity:0; transition:opacity .3s}
+.strip-say.show{opacity:1}
+.strip-walker.flip .strip-say{left:auto; right:100%; margin:0 4px 0 0}
+
+/* ---------- Aisle walk: the end cap ----------
+   The end of every aisle is a promotional end-of-aisle display. It stacks itself as
+   you reach it, then hands you to the next aisle with your basket in view. */
+.endcap{--q:0; margin-top:64px; display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.15fr); gap:28px; align-items:center; background:linear-gradient(180deg,var(--bg2),var(--surface2)); border:2px solid var(--line); border-radius:30px; padding:28px; position:relative; overflow:hidden}
+.ec-scene{position:relative; display:flex; justify-content:center; align-items:flex-end; min-height:300px; padding-left:70px}
+.ec-host{position:absolute; left:0; bottom:0; width:96px; z-index:2}
+.ec-stand{display:flex; flex-direction:column; align-items:center; width:min(300px,100%)}
+.ec-board{display:flex; align-items:center; gap:10px; background:var(--c); color:var(--on-accent); font-family:var(--font-display); font-weight:600; padding:10px 16px; border-radius:14px; margin-bottom:10px; box-shadow:0 6px 0 var(--shadow); line-height:1.1}
+.ec-board.dark{color:var(--label-ink)}
+.ec-board b{width:34px; height:34px; flex:none; border-radius:50%; background:var(--label-bg); color:var(--label-ink); display:grid; place-items:center}
+.tier{display:flex; justify-content:center; gap:6px; padding-top:6px; border-bottom:9px solid var(--wood); align-self:stretch}
+.ec-item,.ec-board{--d:clamp(0, calc(var(--q) * 16 - var(--i)), 1); transform:translateY(calc((1 - var(--d)) * -110px)) rotate(calc((1 - var(--d)) * -24deg)); opacity:var(--d); will-change:transform,opacity}
+.ec-item{width:38px; height:46px; border-radius:7px; background:linear-gradient(100deg,rgba(255,255,255,.4),transparent 35%),var(--c); box-shadow:inset -5px 0 0 rgba(0,0,0,.08)}
+.ec-item:nth-child(3n){height:38px; border-radius:16px 16px 7px 7px}
+.ec-base{align-self:stretch; height:40px; border-radius:0 0 10px 10px; background:linear-gradient(var(--wood),var(--wood2))}
+.ec-copy h3{font-size:clamp(1.6rem,3.4vw,2.3rem); margin:4px 0 8px}
+.ec-copy .lead{margin:0}
+.basket{margin-top:22px; border-top:2px dashed var(--line); padding-top:14px}
+.basket h4{font-size:1rem; margin-bottom:8px}
+.basket ul{list-style:none; margin:0; padding:0; display:flex; flex-wrap:wrap; gap:6px}
+.basket li{display:flex; align-items:center; gap:6px; font-size:.82rem; font-weight:700; border:2px solid var(--line); background:var(--surface); border-radius:999px; padding:3px 10px 3px 4px; color:var(--ink2)}
+.basket li i{font-style:normal; width:20px; height:20px; border-radius:50%; display:grid; place-items:center; font-size:.72rem; border:2px solid var(--c); color:var(--ink)}
+.basket li.got{color:var(--ink); border-color:var(--c)}
+.basket li.got i{background:var(--c); color:var(--on-accent)}
+.basket .status{margin-top:10px}
+
 /* ---------- Floating: mini Shelby + Help sign ---------- */
 .mini{position:fixed; left:max(12px,env(safe-area-inset-left,0px)); bottom:calc(12px + env(safe-area-inset-bottom,0px)); z-index:30; display:flex; align-items:flex-end; gap:8px; transform:translateY(160%); transition:transform .5s var(--ease-bounce); pointer-events:none}
-body.scene-away .mini{transform:none}
 .mini > button{pointer-events:auto; width:78px; background:none; border:0; padding:0; cursor:pointer}
 .mini .mbub{pointer-events:auto; background:var(--surface); color:var(--ink); border-radius:18px; padding:10px 14px; box-shadow:0 8px 22px var(--shadow); max-width:min(300px,calc(100vw - 230px)); font-weight:600; font-size:.92rem; margin-bottom:30px}
 .helpsign{position:fixed; right:max(12px,env(safe-area-inset-right,0px)); bottom:calc(14px + env(safe-area-inset-bottom,0px)); z-index:31; border:0; cursor:pointer; background:#241B33; border-radius:16px; padding:8px 14px 9px; box-shadow:0 0 0 4px #4A3B5E,0 10px 26px rgba(0,0,0,.35); text-align:center; color:#FFD9D2}
@@ -507,6 +556,18 @@ dialog.centre{border-radius:26px; width:min(560px,calc(100% - 32px))}
   .thr-title{font-size:1.6rem}
   .beat p{font-size:.95rem}
   .beat .actions{margin-top:12px}
+  .strip{height:64px; --pad:26px}
+  .strip-bays{height:36px}
+  .bay{height:36px; width:24px; margin-left:-12px}
+  .bay::before{height:9px}
+  .bay i{width:15px; height:20px}
+  .strip-walker{width:40px; bottom:4px}
+  .strip-say{bottom:18px; font-size:.75rem}
+  .endcap{grid-template-columns:minmax(0,1fr); padding:20px 16px; gap:18px}
+  .ec-scene{min-height:250px; padding-left:56px}
+  .ec-host{width:76px}
+  .ec-item{width:30px; height:38px}
+  .ec-item:nth-child(3n){height:32px}
   .aboard{display:none}
   .planter{left:-44px; right:auto; bottom:-26px; width:118px}
   .planter .pot{height:52px}
@@ -606,6 +667,12 @@ dialog.centre{border-radius:26px; width:min(560px,calc(100% - 32px))}
       </div>
     </div></div>
   </section>
+  <div class="strip" id="strip">
+    <div class="strip-far" aria-hidden="true"></div>
+    <div class="strip-floor" aria-hidden="true"></div>
+    <nav class="strip-bays" id="strip-bays" aria-label="Sections in this aisle"></nav>
+    <div class="strip-walker" id="strip-walker" aria-hidden="true"><div data-shelby="strip"></div><span class="strip-say" id="strip-say"></span></div>
+  </div>
   <main id="content" class="wrap" tabindex="-1"></main>
 </div>
 
@@ -1064,10 +1131,11 @@ function go(id, opts={}){
   $$('.sign').forEach(b=>b.setAttribute('aria-current', b.dataset.go===a.id?'page':'false'));
   $$('#map-grid button').forEach(b=>b.classList.toggle('here', b.dataset.go===a.id));
   const main=$('#content');
-  main.innerHTML = `<div class="aisle-head"><div class="roundel" style="--c:var(${a.c})" aria-hidden="true">${a.n}</div><div><div class="eyebrow">${a.id==='checkout'?'Tills':'Aisle '+a.n}</div><h2>${a.name}</h2><p class="lead">${a.lead}</p></div></div>` + VIEWS[a.id]();
+  if(!state.visited.includes(a.id)){ state.visited.push(a.id); save() }
+  main.innerHTML = `<div class="aisle-head"><div class="roundel" style="--c:var(${a.c})" aria-hidden="true">${a.n}</div><div><div class="eyebrow">${a.id==='checkout'?'Tills':'Aisle '+a.n}</div><h2>${a.name}</h2><p class="lead">${a.lead}</p></div></div>` + VIEWS[a.id]() + endcap(a);
   mountShelbies();
   BINDS[a.id] && BINDS[a.id]();
-  if(!state.visited.includes(a.id)){ state.visited.push(a.id); save() }
+  walkSetup(a);
   try{ history.replaceState(null,'','#'+a.id) }catch(e){}
   const signs=$('#signs'), sg=$(`.sign[data-go="${a.id}"]`);
   signs.scrollTo({left: sg.offsetLeft - (signs.clientWidth - sg.offsetWidth)/2, behavior: calm()?'auto':'smooth'});
@@ -1076,6 +1144,96 @@ function go(id, opts={}){
   if(opts.focus){ main.focus({preventScroll:true}); const top=$('#scene').getBoundingClientRect().top+scrollY-60; if(scrollY>top) scrollTo({top, behavior:calm()?'auto':'smooth'}) }
 }
 function stepAisle(dir){ const i=AISLES.indexOf(current)+dir; if(i>=0&&i<AISLES.length) go(AISLES[i].id,{focus:true}) }
+
+/* ================= Aisle walk: end cap + strip ================= */
+const ENDCAP_COLOURS=['--coral','--teal','--sun','--lilac','--mint','--sky','--pink'];
+function endcap(a){
+  if(a.id==='checkout') return '';
+  const next=AISLES[AISLES.indexOf(a)+1], stamps=Object.keys(state.stamps).length;
+  // Practice is the part that gets people the job, so point at it before Checkout when it's unfinished
+  const detour = stamps<QUESTIONS.length && a.id!=='practice' && next.id!=='practice' && AISLES.indexOf(a)>=3;
+  let n=0; const items=k=>Array.from({length:k},()=>`<span class="ec-item" style="--i:${n};--c:var(${ENDCAP_COLOURS[n++%ENDCAP_COLOURS.length]})"></span>`).join('');
+  const tiers=[items(5),items(4),items(3)].reverse();   // bottom tier lands first
+  return `<section class="endcap" id="endcap" aria-labelledby="ec-title">
+    <div class="ec-scene" aria-hidden="true">
+      <div class="ec-host" data-shelby="endcap"></div>
+      <div class="ec-stand">
+        <div class="ec-board${next.id==='checkout'?' dark':''}" style="--i:12.5;--c:var(${next.c})"><b>${next.n}</b>${next.name}</div>
+        ${tiers.map(t=>`<div class="tier">${t}</div>`).join('')}
+        <div class="ec-base"></div>
+      </div>
+    </div>
+    <div class="ec-copy">
+      <div class="eyebrow">End of ${a.id==='practice'?'the Practice Till':'Aisle '+a.n}</div>
+      <h3 id="ec-title">Next up: ${next.name}</h3>
+      <p class="lead">${next.lead}</p>
+      <div class="btnrow"><button class="btn" data-go="${next.id}">${next.id==='checkout'?'Head to the tills':'Walk to Aisle '+next.n}</button>${detour?`<button class="btn ghost small" data-go="practice">Practise at the till first</button>`:''}</div>
+      <div class="basket"><h4>Your basket</h4><ul>${AISLES.filter(x=>x.id!=='checkout').map(x=>{ const got=state.visited.includes(x.id);
+        return `<li class="${got?'got':''}" style="--c:var(${x.c})"><i aria-hidden="true">${got?'✓':x.n}</i>${x.name}<span class="sr-only">${got?' (visited)':' (not visited yet)'}</span></li>` }).join('')}</ul>
+        <p class="status">Practice stamps: ${stamps} of ${QUESTIONS.length}</p></div>
+    </div>
+  </section>`;
+}
+
+const walk={bays:[], titles:[], here:-1, lastY:0, idle:0, sayT:0, raf:0, cheered:false};
+function walkSetup(a){
+  const head=$('#content .aisle-head'), ec=$('#endcap');
+  walk.bays=[head, ...$$('#content > .block'), ...(ec?[ec]:[])].filter(Boolean);
+  walk.titles=walk.bays.map((b,i)=> i===0 ? a.name : b===ec ? 'End of the aisle' : (b.querySelector('h3,h2')?.textContent || 'Next bay'));
+  $('#strip-bays').innerHTML=walk.bays.map((b,i)=>`<button class="bay" data-bay="${i}" style="--c:var(${a.c})" aria-label="${walk.titles[i]}" title="${walk.titles[i]}"><i></i></button>`).join('');
+  $$('#strip-bays .bay').forEach(btn=>btn.addEventListener('click',()=>{
+    const el=walk.bays[+btn.dataset.bay], off=$('.topbar').offsetHeight+$('#strip').offsetHeight+16;
+    scrollTo({top:el.getBoundingClientRect().top+scrollY-off, behavior:calm()?'auto':'smooth'}) }));
+  walk.here=-1; walk.cheered=false;
+  if(ec && calm()) ec.style.setProperty('--q','1');
+  requestAnimationFrame(walkRender);
+}
+function walkRender(){
+  walk.raf=0;
+  if($('#store').hidden || !walk.bays.length) return;
+  const strip=$('#strip'), tbH=$('.topbar').offsetHeight, line=tbH+strip.offsetHeight;
+  root.style.setProperty('--tb-h',tbH+'px');
+  const main=$('#content'), start=main.getBoundingClientRect().top+scrollY-line;
+  const total=Math.max(1, main.offsetHeight-(innerHeight-line));
+  const p=clamp01((scrollY-start)/total);
+  const fr=walk.bays.map(b=>clamp01((b.getBoundingClientRect().top+scrollY-start)/total));
+  let here=0; fr.forEach((f,i)=>{ if(f<=p+.002) here=i });
+  // Writes after all reads
+  strip.style.setProperty('--sp',p.toFixed(4));
+  $$('#strip-bays .bay').forEach((b,i)=>{ b.style.setProperty('--f',fr[i].toFixed(4)); b.classList.toggle('passed',i<=here); b.classList.toggle('here',i===here) });
+  const w=strip.clientWidth, pad=parseFloat(getComputedStyle($('#strip-bays')).left)||28, wk=$('#strip-walker');
+  const x=pad + p*(w-2*pad) - wk.offsetWidth/2;
+  wk.style.setProperty('--sx',x.toFixed(1)+'px');
+  wk.classList.toggle('flip', x>w*.6);
+  if(here!==walk.here){
+    if(walk.here!==-1 && document.body.classList.contains('scene-away')){
+      const say=$('#strip-say'); say.textContent=walk.titles[here]; say.classList.add('show');
+      clearTimeout(walk.sayT); walk.sayT=setTimeout(()=>say.classList.remove('show'),1800);
+    }
+    walk.here=here;
+  }
+  const ec=$('#endcap');
+  if(ec && !calm()){
+    const r=ec.getBoundingClientRect(), q=clamp01((innerHeight-r.top)/(r.height*.85));
+    ec.style.setProperty('--q',q.toFixed(3));
+    const host=$('.ec-host .shelby');
+    if(host) host.dataset.mood = q>.9 ? 'excited' : 'happy';
+    if(q>.95 && !walk.cheered){ walk.cheered=true; act('is-waving',1700,$('.ec-host')) }
+  }
+}
+function walkScroll(){
+  if($('#store').hidden) return;
+  if(!calm() && document.body.classList.contains('scene-away')){
+    const s=$('#strip-walker .shelby');
+    if(s && !s.classList.contains('is-walking')) s.classList.add('is-walking');
+    clearTimeout(walk.idle); walk.idle=setTimeout(()=>s && s.classList.remove('is-walking'),180);
+  }
+  if(!walk.raf) walk.raf=requestAnimationFrame(walkRender);
+}
+addEventListener('scroll',walkScroll,{passive:true});
+addEventListener('resize',()=>{ if(!walk.raf) walk.raf=requestAnimationFrame(walkRender) });
+// Opening or closing a "What's it really like?" card changes the aisle's length
+document.addEventListener('toggle',()=>{ if(!walk.raf) walk.raf=requestAnimationFrame(walkRender) },true);
 
 /* ================= Views ================= */
 const VIEWS = {
@@ -1527,7 +1685,7 @@ $('#mini-btn').addEventListener('click',()=>{ const b=$('#mini-bub'), btn=$('#mi
 addEventListener('resize',()=>{ if(!$('#store').hidden) walkTo(current.id,false) });
 
 /* Mini Shelby appears when the shop floor scrolls out of view */
-new IntersectionObserver(([en])=>document.body.classList.toggle('scene-away', !en.isIntersecting),{threshold:0}).observe($('#scene'));
+new IntersectionObserver(([en])=>{ document.body.classList.toggle('scene-away', !en.isIntersecting); if(!walk.raf) walk.raf=requestAnimationFrame(walkRender) },{threshold:0, rootMargin:'-60px 0px 0px 0px'}).observe($('#scene'));
 
 /* Swipe between aisles on phones */
 let sx=0, sy=0, st=null;
