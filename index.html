@@ -167,7 +167,10 @@ button{font:inherit; color:inherit}
 .window::after{content:""; position:absolute; inset:-40% -60%; background:linear-gradient(115deg,transparent 40%,rgba(255,255,255,.35) 46%,transparent 52%); pointer-events:none}
 .poster{background:var(--label-bg); color:var(--label-ink); border-radius:10px; padding:10px 12px; font-family:var(--font-display); font-weight:600; transform:rotate(-3deg); box-shadow:0 6px 14px var(--shadow)}
 .poster b{display:block; color:#C43E2A; font-size:1.3rem}
-.window.right .poster{transform:rotate(2deg)}
+.nowrap{white-space:nowrap}
+.poster small{display:block; margin-top:4px; font-size:.8rem; color:#1D8253}
+.open-sign{position:relative; margin-top:18px; padding:4px 14px; border-radius:8px; background:#241B33; color:#5BE08F; font-family:var(--font-display); font-weight:700; letter-spacing:.16em; font-size:.95rem; box-shadow:0 0 0 3px var(--wood)}
+.open-sign::before{content:""; position:absolute; left:50%; bottom:100%; width:40%; height:18px; margin-left:-20%; border:2px solid var(--wood2); border-bottom:0; border-radius:10px 10px 0 0}
 .mini-goods{display:flex; gap:6px; align-items:flex-end}
 .mini-goods span{width:18px; border-radius:5px 5px 3px 3px}
 .doors{position:relative; border:8px solid var(--wood); border-bottom:0; border-radius:16px 16px 0 0; min-height:260px; padding:0; cursor:pointer; overflow:hidden; display:block;
@@ -188,7 +191,8 @@ button{font:inherit; color:inherit}
 .door.l::after{right:10px} .door.r::after{left:10px}
 .doors .mat{position:absolute; bottom:0; left:15%; right:15%; height:12px; background:var(--teal); border-radius:6px 6px 0 0}
 .doors .welcome-label{position:absolute; top:10px; left:0; right:0; font-family:var(--font-display); font-weight:600; color:#7A4A1F; font-size:.8rem; letter-spacing:.12em; text-transform:uppercase; z-index:1; opacity:calc(1 - var(--open))}
-.host{position:absolute; bottom:calc(var(--ground) - 6px); left:calc(var(--shop-x) - var(--shop-w) * .44); width:clamp(96px,10vw,140px)}
+/* Shelby stands in front of the right-hand window (a goods display), so the hiring poster stays in view */
+.host{position:absolute; bottom:calc(var(--ground) - 6px); right:calc(100% - var(--shop-x) - var(--shop-w) * .44); width:clamp(96px,10vw,140px)}
 /* Foreground props: nearest to the camera, so they rush past fastest */
 .aboard{position:absolute; bottom:-22px; left:calc(var(--shop-x) - var(--shop-w) * .5 - clamp(110px,12vw,170px)); width:clamp(120px,13vw,180px)}
 .aboard .board{position:relative; background:#2E4B3C; border:8px solid var(--wood); border-radius:12px 12px 6px 6px; color:#F4F1E4; padding:12px 8px 14px; text-align:center; font-family:var(--font-display); line-height:1.15; box-shadow:0 14px 24px var(--shadow)}
@@ -203,7 +207,6 @@ button{font:inherit; color:inherit}
 /* Copy: Shelby talking to you as you walk up. Three beats, one at a time. */
 .thr-copy{position:absolute; z-index:6; left:max(24px,4vw); top:50%; transform:translateY(-50%); width:min(440px,34vw); display:grid}
 .beat{grid-area:1/1; align-self:center; position:relative; background:var(--surface); color:var(--ink); border-radius:26px; padding:24px 26px; box-shadow:0 18px 40px var(--shadow); will-change:opacity,transform}
-.beat::after{content:""; position:absolute; right:-14px; top:50%; margin-top:-14px; border:14px solid transparent; border-left-color:var(--surface); border-right:0}
 .thr-title{font-size:clamp(1.8rem,3.2vw,2.75rem); line-height:1.06; margin-bottom:10px}
 .thr-title em{font-style:normal; color:var(--coral-ink)}
 .beat p{color:var(--ink2)}
@@ -582,7 +585,7 @@ dialog.centre{border-radius:26px; width:min(560px,calc(100% - 32px))}
   .entrance{--shop-x:50%; --shop-w:min(600px,94vw); --ground:11%}
   .thr-copy{left:max(16px,env(safe-area-inset-left,0px)); right:max(16px,env(safe-area-inset-right,0px)); width:auto; max-width:560px; margin:0 auto; top:calc(env(safe-area-inset-top,0px) + 16px); transform:none}
   .beat::after{display:none}
-  .host{left:calc(var(--shop-x) - var(--shop-w) * .45); width:clamp(84px,14vw,120px)}
+  .host{right:calc(100% - var(--shop-x) - var(--shop-w) * .45); width:clamp(84px,14vw,120px)}
   .aboard{left:-12px; width:clamp(104px,20vw,150px)}
   .planter{left:auto; right:-30px}
 }
@@ -626,6 +629,8 @@ dialog.centre{border-radius:26px; width:min(560px,calc(100% - 32px))}
   .ec-item:nth-child(3n){height:32px}
   .aboard{display:none}
   .planter{left:-44px; right:auto; bottom:-26px; width:118px}
+  /* Phones hide the posters, and the HELP sign sits bottom-right, so Shelby takes the left window */
+  .host{right:auto; left:calc(var(--shop-x) - var(--shop-w) * .45)}
   .planter .pot{height:52px}
   .floorstage{height:200px}
   .sign{max-width:170px; font-size:.9rem}
@@ -662,7 +667,7 @@ dialog.centre{border-radius:26px; width:min(560px,calc(100% - 32px))}
       <div class="front">
         <span class="sensor" aria-hidden="true"></span>
         <div class="window left">
-          <div class="poster"><b>We're hiring!</b>Shop jobs for 16–24s</div>
+          <div class="poster"><b>We're hiring!</b>Shop jobs for <span class="nowrap">16–24s</span><small>No experience needed</small></div>
           <div class="mini-goods" aria-hidden="true"><span style="height:40px;background:var(--teal)"></span><span style="height:28px;background:var(--sun)"></span><span style="height:48px;background:var(--coral)"></span><span style="height:34px;background:var(--lilac)"></span></div>
         </div>
         <button class="doors" id="doors" aria-label="Step inside Aisle Up">
@@ -671,7 +676,7 @@ dialog.centre{border-radius:26px; width:min(560px,calc(100% - 32px))}
           <span class="door l"></span><span class="door r"></span>
         </button>
         <div class="window right">
-          <div class="poster"><b>No experience?</b>No problem. Come in!</div>
+          <div class="open-sign" aria-hidden="true">OPEN</div>
           <div class="mini-goods" aria-hidden="true"><span style="height:30px;background:var(--mint)"></span><span style="height:46px;background:var(--pink)"></span><span style="height:36px;background:var(--sky)"></span></div>
         </div>
       </div>
