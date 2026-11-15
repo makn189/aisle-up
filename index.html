@@ -19,6 +19,7 @@
   --on-accent:#FFFFFF; --label-bg:#FFF8EC; --label-ink:#2C2141;
   --wall:#FFD9A8; --wall2:#F6BE82; --floor:#E7B887; --floor2:#D9A26F; --wood:#C4844F; --wood2:#A86B3B;
   --sky1:#9EDCF0; --sky2:#FFE2B5; --brick:#E7805C; --brick2:#D46A47; --glass:rgba(190,236,242,.6);
+  --bld1:#C9B6EC; --bld2:#9CD3CB; --bld-cap:#8E7BC4; --win:#FFF6DE;
   --glow:rgba(255,194,61,.55); --shadow:rgba(90,50,20,.18);
   --good:#1D8253; --warn:#A86200; --bad:#BF3A2A;
   --font-display:"Fredoka","Baloo 2","Trebuchet MS",sans-serif;
@@ -34,6 +35,7 @@
   --on-accent:#1C1730;
   --wall:#3B305E; --wall2:#2F2650; --floor:#4A3B5E; --floor2:#3C2F50; --wood:#8E5D3E; --wood2:#714629;
   --sky1:#1D2756; --sky2:#5E3F72; --brick:#7C4148; --brick2:#66343B; --glass:rgba(255,214,140,.32);
+  --bld1:#372D5E; --bld2:#24485A; --bld-cap:#2A2248; --win:#FFD27A;
   --glow:rgba(255,207,92,.42); --shadow:rgba(0,0,0,.42);
   --good:#5BD796; --warn:#FFB547; --bad:#FF8676; color-scheme:dark }}
 :root[data-theme="dark"]{
@@ -44,6 +46,7 @@
   --on-accent:#1C1730;
   --wall:#3B305E; --wall2:#2F2650; --floor:#4A3B5E; --floor2:#3C2F50; --wood:#8E5D3E; --wood2:#714629;
   --sky1:#1D2756; --sky2:#5E3F72; --brick:#7C4148; --brick2:#66343B; --glass:rgba(255,214,140,.32);
+  --bld1:#372D5E; --bld2:#24485A; --bld-cap:#2A2248; --win:#FFD27A;
   --glow:rgba(255,207,92,.42); --shadow:rgba(0,0,0,.42);
   --good:#5BD796; --warn:#FFB547; --bad:#FF8676; color-scheme:dark }
 :root[data-contrast="high"]{
@@ -119,8 +122,25 @@ button{font:inherit; color:inherit}
 @keyframes sh-run{0%,100%{transform:translateY(0) rotate(-9deg)}50%{transform:translateY(-12px) rotate(-6deg)}}
 @keyframes sh-jump{0%,100%{transform:translateY(0) scale(1,1)}15%{transform:translateY(0) scale(1.08,.9)}50%{transform:translateY(-34px) scale(.95,1.06)}}
 
-/* ---------- Entrance ---------- */
-.entrance{position:relative; overflow:hidden; background:linear-gradient(180deg,var(--sky1),var(--sky2) 75%); padding-top:env(safe-area-inset-top,0px)}
+/* ---------- Entrance: the threshold ----------
+   A pinned stage of independent planes (sky, street, shop, Shelby, foreground).
+   Scroll progress is the visitor's footsteps: the camera pushes towards the doors,
+   the sensor sees you, the doors slide apart and you walk through into the store. */
+.entrance{position:relative; height:320vh; background:var(--sky2); --open:0; --flash:0; --ground:13%; --shop-x:62%; --shop-w:min(760px,56vw)}
+.thr-stage{position:sticky; top:0; height:100vh; height:100svh; overflow:hidden; background:linear-gradient(180deg,var(--sky1),var(--sky2) 72%)}
+.entrance.static{height:auto}
+.entrance.static .thr-stage{position:relative; min-height:600px}
+.pl{position:absolute; inset:0; transform-origin:var(--ox,62%) var(--oy,60%); pointer-events:none; will-change:transform}
+.pl-sky{z-index:1} .pl-street{z-index:2} .pl-shop{z-index:3} .pl-host{z-index:4} .pl-fore{z-index:5}
+.pl-flash{z-index:7; background:var(--wall); opacity:var(--flash); will-change:opacity}
+.pl button,.pl a{pointer-events:auto}
+.bld{position:absolute; bottom:0; background:var(--bld1); border-radius:10px 10px 0 0; box-shadow:inset -14px 0 0 rgba(0,0,0,.06)}
+.bld::before{content:""; position:absolute; inset:34px 18px calc(var(--ground) + 30px) 18px; background:repeating-linear-gradient(90deg,var(--win) 0 26px,transparent 26px 46px);
+  -webkit-mask:repeating-linear-gradient(180deg,#000 0 34px,transparent 34px 62px); mask:repeating-linear-gradient(180deg,#000 0 34px,transparent 34px 62px); opacity:.85}
+.bld::after{content:""; position:absolute; left:-8px; right:-8px; top:-12px; height:14px; border-radius:6px; background:var(--bld-cap)}
+.bld.a{left:-2%; width:26%; height:68%}
+.bld.b{right:-3%; width:24%; height:60%; background:var(--bld2)}
+.ground{position:absolute; left:-20%; right:-20%; bottom:0; height:var(--ground); background:repeating-linear-gradient(90deg,transparent 0 88px,rgba(0,0,0,.07) 88px 91px),linear-gradient(var(--floor),var(--floor2)); border-top:4px solid var(--wood2)}
 .entrance .sunball{position:absolute; width:180px; height:180px; border-radius:50%; right:8%; top:30px; background:radial-gradient(circle,var(--sun) 35%,transparent 70%); opacity:.85}
 .cloud{position:absolute; height:34px; border-radius:40px; background:var(--label-bg); opacity:.85; animation:drift 40s linear infinite}
 .cloud::before,.cloud::after{content:""; position:absolute; background:inherit; border-radius:50%}
@@ -128,47 +148,69 @@ button{font:inherit; color:inherit}
 .cloud::after{width:34px; height:34px; left:52px; top:-14px}
 .c1{width:120px; left:8%; top:50px} .c2{width:90px; left:55%; top:90px; animation-duration:55s}
 @keyframes drift{from{transform:translateX(-30px)}to{transform:translateX(60px)}}
-.shopfront{position:relative; max-width:980px; margin:0 auto; padding:60px max(16px,env(safe-area-inset-right,0px)) 0 max(16px,env(safe-area-inset-left,0px))}
-.roof-sign{position:relative; margin:0 auto; width:min(560px,100%); background:var(--ink); color:var(--sun); border-radius:26px 26px 10px 10px; padding:18px 20px 16px; text-align:center; box-shadow:0 0 0 6px var(--wood), 0 18px 40px var(--shadow)}
+.shopfront{position:absolute; left:var(--shop-x); bottom:var(--ground); width:var(--shop-w); transform:translateX(-50%)}
+.roof-sign{position:relative; margin:0 auto; width:min(560px,100%); background:#241B33; color:var(--sun); border-radius:26px 26px 10px 10px; padding:18px 20px 16px; text-align:center; box-shadow:0 0 0 6px var(--wood), 0 18px 40px var(--shadow)}
 .roof-sign h1{font-size:clamp(2.6rem,8vw,4.6rem); font-weight:700; letter-spacing:.01em; color:var(--sun); text-shadow:0 0 18px var(--glow),0 0 2px var(--sun)}
 .roof-sign h1 em{font-style:normal; color:var(--coral)}
-.roof-sign .sub{color:var(--label-bg); font-weight:700; letter-spacing:.14em; text-transform:uppercase; font-size:.78rem}
+.roof-sign .sub{color:#FFF8EC; font-weight:700; letter-spacing:.14em; text-transform:uppercase; font-size:.78rem}
 .bulbs{position:absolute; inset:8px; border-radius:20px 20px 6px 6px; pointer-events:none;
   background:radial-gradient(circle,var(--sun) 2.5px,transparent 3.5px) 0 0/22px 22px; -webkit-mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0); mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0); padding:6px; animation:bulbs 1.6s steps(2) infinite}
 @keyframes bulbs{50%{opacity:.55}}
 .awning{height:54px; margin-top:22px; border-radius:14px 14px 30px 30px; background:repeating-linear-gradient(90deg,var(--coral) 0 46px,var(--label-bg) 46px 92px); box-shadow:0 10px 0 -2px var(--shadow); position:relative; z-index:2;
   -webkit-mask:radial-gradient(circle 23px at 23px 100%,transparent 98%,#000) 0 0/46px 100%; mask:radial-gradient(circle 23px at 23px 100%,transparent 98%,#000) 0 0/46px 100%}
-.front{display:grid; grid-template-columns:1fr 1.2fr 1fr; gap:18px; background:linear-gradient(var(--brick),var(--brick2)); padding:26px 22px 0; border-radius:0 0 8px 8px; position:relative}
-.window{background:var(--glass); border:8px solid var(--wood); border-radius:14px; min-height:200px; padding:14px; display:flex; flex-direction:column; gap:10px; align-items:center; justify-content:center; text-align:center; position:relative; overflow:hidden}
+.front{display:grid; grid-template-columns:1fr 1.2fr 1fr; gap:18px; background:linear-gradient(var(--brick),var(--brick2)); padding:30px 22px 0; position:relative}
+.sensor{position:absolute; top:8px; left:50%; width:46px; height:16px; margin-left:-23px; border-radius:6px; background:#241B33; box-shadow:0 2px 0 rgba(0,0,0,.2)}
+.sensor::after{content:""; position:absolute; top:4px; left:50%; width:8px; height:8px; margin-left:-4px; border-radius:50%; background:#FF6B57; box-shadow:0 0 6px #FF6B57}
+.entrance.seen .sensor::after{background:#5BE08F; box-shadow:0 0 10px #5BE08F,0 0 22px rgba(91,224,143,.7)}
+.spill{position:absolute; left:50%; bottom:-56px; width:52%; height:120px; transform:translateX(-50%); border-radius:50%; background:radial-gradient(ellipse at 50% 20%,rgba(255,214,120,.9),rgba(255,214,120,0) 70%); opacity:var(--open); pointer-events:none}
+.window{background:var(--glass); border:8px solid var(--wood); border-radius:14px; min-height:200px; padding:14px; display:flex; flex-direction:column; gap:10px; align-items:center; justify-content:space-between; text-align:center; position:relative; overflow:hidden}
 .window::after{content:""; position:absolute; inset:-40% -60%; background:linear-gradient(115deg,transparent 40%,rgba(255,255,255,.35) 46%,transparent 52%); pointer-events:none}
 .poster{background:var(--label-bg); color:var(--label-ink); border-radius:10px; padding:10px 12px; font-family:var(--font-display); font-weight:600; transform:rotate(-3deg); box-shadow:0 6px 14px var(--shadow)}
 .poster b{display:block; color:#C43E2A; font-size:1.3rem}
 .window.right .poster{transform:rotate(2deg)}
 .mini-goods{display:flex; gap:6px; align-items:flex-end}
 .mini-goods span{width:18px; border-radius:5px 5px 3px 3px}
-.doors{position:relative; border:8px solid var(--wood); border-bottom:0; border-radius:16px 16px 0 0; min-height:270px; padding:0; cursor:pointer; overflow:hidden;
-  background:radial-gradient(ellipse at 50% 30%,#FFE9B8,#FFC877 70%); display:block}
-.doors .inside{position:absolute; inset:0; display:grid; place-items:end center; padding-bottom:10px}
-.doors .inside .aisle-peek{position:absolute; inset:24px 14px 30px; background:repeating-linear-gradient(180deg,transparent 0 44px,#C4844F 44px 50px); opacity:.55}
-.door{position:absolute; top:0; bottom:0; width:50%; background:linear-gradient(115deg,rgba(255,255,255,.25),var(--glass) 40%,rgba(255,255,255,.18)); border:4px solid rgba(255,255,255,.6); transition:transform 1s cubic-bezier(.7,0,.2,1)}
-.door.l{left:0; border-right-width:2px} .door.r{right:0; border-left-width:2px}
+.doors{position:relative; border:8px solid var(--wood); border-bottom:0; border-radius:16px 16px 0 0; min-height:260px; padding:0; cursor:pointer; overflow:hidden; display:block;
+  box-shadow:0 0 calc(var(--open) * 70px) calc(var(--open) * 12px) var(--glow)}
+/* The shop inside the doorway: the same wall, shelves and floor as the store you land in */
+.doors .inside{position:absolute; inset:0; background:linear-gradient(180deg,#FFF0C9 0,var(--wall) 34%,var(--wall2) 70%,var(--floor) 70%,var(--floor2) 100%)}
+.aisle-peek{position:absolute; left:6%; right:6%; top:26%; bottom:30%}
+.aisle-peek::before,.aisle-peek::after{content:""; position:absolute; top:0; bottom:0; width:40%;
+  background:repeating-linear-gradient(90deg,var(--coral) 0 9px,var(--teal) 9px 18px,var(--sun) 18px 27px,var(--lilac) 27px 36px,var(--mint) 36px 45px,transparent 45px 48px);
+  -webkit-mask:repeating-linear-gradient(180deg,#000 0 20px,transparent 20px 27px); mask:repeating-linear-gradient(180deg,#000 0 20px,transparent 20px 27px);
+  border-bottom:5px solid var(--wood)}
+.aisle-peek::before{left:0} .aisle-peek::after{right:0}
+.peek-sign{position:absolute; top:9%; left:50%; width:26%; height:11%; margin-left:-13%; border-radius:6px; background:var(--coral); box-shadow:0 0 0 2px var(--label-bg)}
+.door{position:absolute; top:0; bottom:0; width:50%; background:linear-gradient(115deg,rgba(255,255,255,.3),var(--glass) 40%,rgba(255,255,255,.2)); border:4px solid rgba(255,255,255,.65)}
+.door.l{left:0; border-right-width:2px; transform:translateX(calc(var(--open) * -101%))}
+.door.r{right:0; border-left-width:2px; transform:translateX(calc(var(--open) * 101%))}
 .door::after{content:""; position:absolute; top:45%; width:6px; height:44px; border-radius:4px; background:var(--wood2)}
 .door.l::after{right:10px} .door.r::after{left:10px}
-.doors:hover .door.l,.doors:focus-visible .door.l{transform:translateX(-14%)}
-.doors:hover .door.r,.doors:focus-visible .door.r{transform:translateX(14%)}
-.entrance.open .door.l{transform:translateX(-101%)} .entrance.open .door.r{transform:translateX(101%)}
 .doors .mat{position:absolute; bottom:0; left:15%; right:15%; height:12px; background:var(--teal); border-radius:6px 6px 0 0}
-.doors .welcome-label{position:absolute; top:10px; left:0; right:0; font-family:var(--font-display); font-weight:600; color:#7A4A1F; font-size:.9rem; letter-spacing:.12em; text-transform:uppercase; z-index:1}
-.pavement{height:34px; background:linear-gradient(var(--floor),var(--floor2)); border-radius:0 0 10px 10px}
-.greet{position:relative; max-width:980px; margin:0 auto; display:flex; gap:22px; align-items:flex-end; padding:22px max(16px,env(safe-area-inset-right,0px)) 40px max(16px,env(safe-area-inset-left,0px))}
-.greet .host{width:150px; flex:none; margin-top:-120px; position:relative; z-index:3; animation:peek 1.4s var(--ease-bounce) .3s both}
-@keyframes peek{from{transform:translateX(-60px) rotate(-12deg); opacity:0}to{transform:none; opacity:1}}
-.greet .speech{background:var(--surface); color:var(--ink); border-radius:24px; padding:20px 22px; box-shadow:0 12px 30px var(--shadow); position:relative; flex:1; min-width:0}
-.greet .speech::before{content:""; position:absolute; left:-12px; bottom:34px; border:12px solid transparent; border-right-color:var(--surface); border-left:0}
-.greet .speech p.big{font-family:var(--font-display); font-size:clamp(1.25rem,3vw,1.6rem); font-weight:600; margin-bottom:6px}
-.greet .actions{display:flex; flex-wrap:wrap; gap:10px; margin-top:14px; align-items:center}
-.entrance.open .shopfront{transform:scale(1.25); opacity:0; transition:transform 1.1s .5s ease-in, opacity .6s 1s}
-.entrance.open .greet{opacity:0; transition:opacity .4s}
+.doors .welcome-label{position:absolute; top:10px; left:0; right:0; font-family:var(--font-display); font-weight:600; color:#7A4A1F; font-size:.8rem; letter-spacing:.12em; text-transform:uppercase; z-index:1; opacity:calc(1 - var(--open))}
+.host{position:absolute; bottom:calc(var(--ground) - 6px); left:calc(var(--shop-x) - var(--shop-w) * .44); width:clamp(96px,10vw,140px)}
+/* Foreground props: nearest to the camera, so they rush past fastest */
+.aboard{position:absolute; bottom:-22px; left:calc(var(--shop-x) - var(--shop-w) * .5 - clamp(110px,12vw,170px)); width:clamp(120px,13vw,180px)}
+.aboard .board{position:relative; background:#2E4B3C; border:8px solid var(--wood); border-radius:12px 12px 6px 6px; color:#F4F1E4; padding:12px 8px 14px; text-align:center; font-family:var(--font-display); line-height:1.15; box-shadow:0 14px 24px var(--shadow)}
+.aboard b{display:block; color:#FFD873; font-size:clamp(.95rem,1.4vw,1.25rem); letter-spacing:.04em}
+.aboard span{display:block; font-size:clamp(.8rem,1.05vw,.98rem); margin-top:4px}
+.aboard .age{font-size:clamp(1.4rem,2.4vw,2rem); color:#FFB3A6; margin:2px 0}
+.aboard small{display:block; margin-top:8px; font-size:.72rem; letter-spacing:.06em; text-transform:uppercase; opacity:.85}
+.aboard::after{content:""; display:block; height:40px; margin:0 14%; background:linear-gradient(90deg,var(--wood2) 0 10px,transparent 10px calc(100% - 10px),var(--wood2) calc(100% - 10px))}
+.planter{position:absolute; bottom:-30px; left:calc(var(--shop-x) + var(--shop-w) * .5 - 40px); width:clamp(120px,12vw,170px)}
+.planter .bush{display:block; aspect-ratio:1.2; background:radial-gradient(circle at 30% 60%,#4FAE60 0 30%,transparent 31%),radial-gradient(circle at 70% 58%,#3E9A50 0 32%,transparent 33%),radial-gradient(circle at 50% 34%,#62C470 0 34%,transparent 35%),radial-gradient(circle at 42% 30%,#FF8FB0 0 4%,transparent 5%),radial-gradient(circle at 64% 44%,#FFD873 0 4%,transparent 5%)}
+.planter .pot{display:block; height:70px; margin:-18% 8% 0; background:linear-gradient(90deg,var(--coral),var(--coral-ink)); clip-path:polygon(0 0,100% 0,88% 100%,12% 100%); border-radius:4px}
+/* Copy: Shelby talking to you as you walk up. Three beats, one at a time. */
+.thr-copy{position:absolute; z-index:6; left:max(24px,4vw); top:50%; transform:translateY(-50%); width:min(440px,34vw); display:grid}
+.beat{grid-area:1/1; align-self:center; position:relative; background:var(--surface); color:var(--ink); border-radius:26px; padding:24px 26px; box-shadow:0 18px 40px var(--shadow); will-change:opacity,transform}
+.beat::after{content:""; position:absolute; right:-14px; top:50%; margin-top:-14px; border:14px solid transparent; border-left-color:var(--surface); border-right:0}
+.thr-title{font-size:clamp(1.8rem,3.2vw,2.75rem); line-height:1.06; margin-bottom:10px}
+.thr-title em{font-style:normal; color:var(--coral-ink)}
+.beat p{color:var(--ink2)}
+.beat .actions{display:flex; flex-wrap:wrap; gap:10px; margin-top:18px; align-items:center}
+.beat.b2 .thr-title,.beat.b3 .thr-title{margin-bottom:6px}
+.entrance:not(.static) .beat.b2,.entrance:not(.static) .beat.b3{opacity:0; visibility:hidden}
+.entrance.static .beat.b2,.entrance.static .beat.b3{display:none}
 
 /* ---------- Store top bar ---------- */
 body::before{content:""; position:fixed; inset:0 0 auto; height:env(safe-area-inset-top,0px); z-index:10; background:var(--ink)}
@@ -218,6 +260,7 @@ body::before{content:""; position:fixed; inset:0 0 auto; height:env(safe-area-in
 
 /* ---------- Aisle content ---------- */
 main{display:block; padding-block:30px 160px; outline:none}
+main:focus-visible{outline:none}
 .aisle-head{display:flex; gap:18px; align-items:center; margin-bottom:26px}
 .roundel{flex:none; width:74px; height:74px; border-radius:50%; background:var(--c,var(--coral)); color:var(--on-accent); display:grid; place-items:center; font-family:var(--font-display); font-size:2rem; font-weight:700; box-shadow:0 6px 0 var(--shadow)}
 .eyebrow{font-family:var(--font-display); font-weight:600; text-transform:uppercase; letter-spacing:.14em; font-size:.8rem; color:var(--ink2)}
@@ -441,13 +484,32 @@ dialog.centre{border-radius:26px; width:min(560px,calc(100% - 32px))}
   .steps{flex-direction:row; overflow-x:auto; padding-bottom:4px}
   .steps button{width:auto; white-space:nowrap}
 }
+/* Narrow screens: copy above the shop, the shop centred, Shelby to the right of the doors */
+@media (max-width:1000px){
+  .entrance{--shop-x:50%; --shop-w:min(600px,94vw); --ground:11%}
+  .thr-copy{left:max(16px,env(safe-area-inset-left,0px)); right:max(16px,env(safe-area-inset-right,0px)); width:auto; max-width:560px; margin:0 auto; top:calc(env(safe-area-inset-top,0px) + 16px); transform:none}
+  .beat::after{display:none}
+  .host{left:calc(var(--shop-x) - var(--shop-w) * .45); width:clamp(84px,14vw,120px)}
+  .aboard{left:-12px; width:clamp(104px,20vw,150px)}
+  .planter{left:auto; right:-30px}
+}
 @media (max-width:760px){
-  .front{grid-template-columns:1fr; padding:18px 14px 0}
-  .window{display:none}
-  .doors{min-height:220px}
-  .greet{flex-direction:column; align-items:stretch}
-  .greet .host{width:110px; margin-top:-90px}
-  .greet .speech::before{left:40px; bottom:auto; top:-12px; border:12px solid transparent; border-bottom-color:var(--surface); border-top:0}
+  .entrance{height:270vh; --ground:9%}
+  .roof-sign{padding:10px 14px 9px; border-radius:18px 18px 8px 8px}
+  .roof-sign h1{font-size:2.3rem}
+  .roof-sign .sub{display:none}
+  .awning{height:38px; margin-top:14px}
+  .front{grid-template-columns:.7fr 1.3fr .7fr; gap:10px; padding:26px 10px 0}
+  .window{min-height:150px; padding:8px; border-width:6px}
+  .window .poster{display:none}
+  .doors{min-height:190px; border-width:6px}
+  .beat{padding:16px 18px; border-radius:20px}
+  .thr-title{font-size:1.6rem}
+  .beat p{font-size:.95rem}
+  .beat .actions{margin-top:12px}
+  .aboard{display:none}
+  .planter{left:-44px; right:auto; bottom:-26px; width:118px}
+  .planter .pot{height:52px}
   .floorstage{height:200px}
   .sign{max-width:170px; font-size:.9rem}
   .walker{left:8px !important; width:96px; transition:none}
@@ -469,41 +531,55 @@ dialog.centre{border-radius:26px; width:min(560px,calc(100% - 32px))}
 
 <!-- ============ ENTRANCE ============ -->
 <section class="entrance" id="entrance" aria-label="Shop entrance">
-  <div class="sunball"></div><div class="cloud c1"></div><div class="cloud c2"></div>
-  <div class="shopfront">
-    <div class="roof-sign"><span class="bulbs"></span>
-      <h1>Aisle <em>Up</em></h1>
-      <div class="sub">Your first retail job starts here</div>
-    </div>
-    <div class="awning"></div>
-    <div class="front">
-      <div class="window left">
-        <div class="poster"><b>We're hiring!</b>Shop jobs for 16–24s</div>
-        <div class="mini-goods" aria-hidden="true"><span style="height:40px;background:var(--teal)"></span><span style="height:28px;background:var(--sun)"></span><span style="height:48px;background:var(--coral)"></span><span style="height:34px;background:var(--lilac)"></span></div>
+ <div class="thr-stage" id="thr-stage">
+  <div class="pl pl-sky" aria-hidden="true"><div class="sunball"></div><div class="cloud c1"></div><div class="cloud c2"></div></div>
+  <div class="pl pl-street" aria-hidden="true"><div class="bld a"></div><div class="bld b"></div></div>
+  <div class="pl pl-shop">
+    <div class="ground" aria-hidden="true"></div>
+    <div class="shopfront">
+      <div class="roof-sign"><span class="bulbs"></span>
+        <h1>Aisle <em>Up</em></h1>
+        <div class="sub">Your first retail job starts here</div>
       </div>
-      <button class="doors" id="doors" aria-label="Step inside Aisle Up">
-        <span class="inside"><span class="aisle-peek"></span><span class="mat"></span></span>
-        <span class="welcome-label">Push to enter</span>
-        <span class="door l"></span><span class="door r"></span>
-      </button>
-      <div class="window right">
-        <div class="poster"><b>No experience?</b>No problem. Come in!</div>
-        <div class="mini-goods" aria-hidden="true"><span style="height:30px;background:var(--mint)"></span><span style="height:46px;background:var(--pink)"></span><span style="height:36px;background:var(--sky)"></span></div>
+      <div class="awning"></div>
+      <div class="front">
+        <span class="sensor" aria-hidden="true"></span>
+        <div class="window left">
+          <div class="poster"><b>We're hiring!</b>Shop jobs for 16–24s</div>
+          <div class="mini-goods" aria-hidden="true"><span style="height:40px;background:var(--teal)"></span><span style="height:28px;background:var(--sun)"></span><span style="height:48px;background:var(--coral)"></span><span style="height:34px;background:var(--lilac)"></span></div>
+        </div>
+        <button class="doors" id="doors" aria-label="Step inside Aisle Up">
+          <span class="inside"><span class="peek-sign"></span><span class="aisle-peek"></span><span class="mat"></span></span>
+          <span class="welcome-label">Automatic doors</span>
+          <span class="door l"></span><span class="door r"></span>
+        </button>
+        <div class="window right">
+          <div class="poster"><b>No experience?</b>No problem. Come in!</div>
+          <div class="mini-goods" aria-hidden="true"><span style="height:30px;background:var(--mint)"></span><span style="height:46px;background:var(--pink)"></span><span style="height:36px;background:var(--sky)"></span></div>
+        </div>
       </div>
+      <span class="spill" aria-hidden="true"></span>
     </div>
-    <div class="pavement"></div>
   </div>
-  <div class="greet">
-    <div class="host" data-shelby="door"></div>
-    <div class="speech">
-      <p class="big">Welcome to Aisle Up! Looking for your first job in retail? Let me show you around.</p>
-      <p>I'm Shelby, and I work here. Inside you'll find six aisles covering the jobs, applications, interviews and practice questions. If you get stuck, press the <b>HELP</b> sign and I'll come running.</p>
+  <div class="pl pl-host" aria-hidden="true"><div class="host" data-shelby="host"></div></div>
+  <div class="pl pl-fore" aria-hidden="true">
+    <div class="aboard"><div class="board"><b>NOW HIRING</b><span class="age">16+</span><span>No experience needed</span><small>Ask Shelby inside</small></div></div>
+    <div class="planter"><span class="bush"></span><span class="pot"></span></div>
+  </div>
+  <div class="thr-copy">
+    <div class="beat b1">
+      <h2 class="thr-title">Your first retail job starts <em>here.</em></h2>
+      <p>Welcome to Aisle Up! I'm Shelby. Let me show you around the jobs, applications and interviews.</p>
       <div class="actions">
         <button class="btn" id="enter">Step inside</button>
         <button class="btn ghost small" data-jump="practice">Skip to interview practice</button>
       </div>
     </div>
+    <div class="beat b2"><h2 class="thr-title">No experience? <em>No problem.</em></h2><p>Most shop jobs don't ask for any. Being friendly and turning up on time count for loads.</p></div>
+    <div class="beat b3"><h2 class="thr-title">The doors are open. <em>Come on in.</em></h2><p>Six aisles, one guide, and practice questions that stamp your loyalty card.</p></div>
   </div>
+  <div class="pl pl-flash" aria-hidden="true"></div>
+ </div>
 </section>
 
 <!-- ============ STORE ============ -->
@@ -1364,24 +1440,82 @@ function applySettings(){
   s.calm? root.setAttribute('data-motion','calm') : root.removeAttribute('data-motion');
   $$('[data-setting]').forEach(b=>b.setAttribute('aria-pressed', !!s[b.dataset.setting]));
 }
-$$('[data-setting]').forEach(b=>b.addEventListener('click',()=>{ const k=b.dataset.setting; state.settings[k]=!state.settings[k]; save(); applySettings(); if(k==='font'||k==='contrast') walkTo(current.id,false) }));
+$$('[data-setting]').forEach(b=>b.addEventListener('click',()=>{ const k=b.dataset.setting; state.settings[k]=!state.settings[k]; save(); applySettings(); if(k==='font'||k==='contrast') walkTo(current.id,false); if(!$('#entrance').hidden) thrSetup() }));
+
+/* ================= The threshold: scroll is your footsteps ================= */
+const thr={el:$('#entrance'), stage:$('#thr-stage'), planes:{}, p:0, live:false, entered:false, waved:false, raf:0, auto:0, target:'welcome'};
+const DEPTH={sky:.12, street:.9, shop:3.4, host:4.2, fore:6};   // how fast each plane grows as you walk in
+['sky','street','shop','host','fore'].forEach(k=>thr.planes[k]=$('.pl-'+k));
+const clamp01=v=>Math.max(0,Math.min(1,v)), smooth=v=>v*v*(3-2*v);
+const fade=(p,a,b,c,d)=> p<a||p>d ? 0 : p<b ? smooth((p-a)/(b-a)) : p<=c ? 1 : 1-smooth((p-c)/(d-c));
+const BEATS=[[$('.beat.b1'),-2,-1,.08,.18],[$('.beat.b2'),.2,.27,.4,.46],[$('.beat.b3'),.58,.64,.84,.9]];
+
+function thrOrigin(){
+  // The camera walks towards the middle of the doorway
+  for(const k in thr.planes) thr.planes[k].style.transform='';
+  const s=thr.stage.getBoundingClientRect(), d=$('#doors').getBoundingClientRect();
+  thr.stage.style.setProperty('--ox',(d.left+d.width/2-s.left)+'px');
+  thr.stage.style.setProperty('--oy',(d.top+d.height*.55-s.top)+'px');
+}
+function thrRender(){
+  const p=thr.p, e=Math.pow(p,1.8), open=smooth(clamp01((p-.42)/.26));
+  for(const k in thr.planes) thr.planes[k].style.transform=`scale(${(1+DEPTH[k]*e).toFixed(4)})`;
+  thr.el.style.setProperty('--open',open.toFixed(3));
+  thr.el.style.setProperty('--flash',clamp01((p-.86)/.12).toFixed(3));
+  thr.el.classList.toggle('seen',p>.32);
+  BEATS.forEach(([el,a,b,c,d])=>{ const o=fade(p,a,b,c,d); el.style.opacity=o.toFixed(3); el.style.transform=`translateY(${((1-o)*18).toFixed(1)}px)`; el.style.visibility=o<.02?'hidden':'visible' });
+  const host=$('.pl-host .shelby');
+  if(host) host.dataset.mood = open>.5 ? 'excited' : 'happy';
+  if(p>.36 && !thr.waved){ thr.waved=true; act('is-waving',1700,$('.pl-host')) }
+  if(p<.2) thr.waved=false;
+  if(p>=.985 && !thr.entered) openStore(thr.target);
+}
+function thrScroll(){
+  if(!thr.live || thr.el.hidden) return;
+  const max=thr.el.offsetHeight-innerHeight;
+  thr.p = max>0 ? clamp01(scrollY/max) : 0;
+  if(!thr.raf) thr.raf=requestAnimationFrame(()=>{ thr.raf=0; thrRender() });
+}
+function thrSetup(){
+  thr.live=!calm();
+  thr.el.classList.toggle('static',!thr.live);
+  thrOrigin();
+  if(thr.live){ thrScroll(); thrRender(); return }
+  // Motion off: a complete, still entrance with the doors ajar and nothing pinned
+  for(const k in thr.planes) thr.planes[k].style.transform='';
+  thr.el.style.setProperty('--open','.3'); thr.el.style.setProperty('--flash','0'); thr.el.classList.add('seen');
+  BEATS.forEach(([el],i)=>{ el.style.opacity=i?'0':'1'; el.style.transform=''; el.style.visibility=i?'hidden':'visible' });
+}
+function openStore(id){
+  thr.entered=true; cancelAnimationFrame(thr.auto);
+  thr.el.hidden=true; $('#store').hidden=false; $('#mini').hidden=false;
+  const walker=$('#walker'), walkIn=!calm() && innerWidth>760;
+  if(walkIn){ walker.style.transition='none'; walker.style.left='-160px'; void walker.offsetWidth; walker.style.transition='' }
+  go(id,{animate:walkIn});
+  if(walkIn) setTimeout(()=>act('is-waving',1700,walker),1100);
+  scrollTo({top:0,behavior:'instant'}); $('#content').focus({preventScroll:true});
+}
+// The button plays the same walk-in, so nobody has to discover scrolling to get inside
+function enterStore(id='welcome'){
+  thr.target=id;
+  if(!thr.live) return openStore(id);
+  cancelAnimationFrame(thr.auto);
+  const end=thr.el.offsetHeight-innerHeight, start=Math.min(scrollY,end), dist=end-start;
+  const dur=Math.max(900, 2800*(end?dist/end:1)), t0=performance.now();
+  const step=t=>{ const k=Math.min(1,(t-t0)/dur), v=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;
+    scrollTo({top:start+dist*v,behavior:'instant'});
+    if(k<1) thr.auto=requestAnimationFrame(step); else if(!thr.entered){ thr.p=1; thrRender() } };
+  thr.auto=requestAnimationFrame(step);
+}
+addEventListener('scroll',thrScroll,{passive:true});
+addEventListener('resize',()=>{ if(!thr.el.hidden){ thrOrigin(); if(thr.live){ thrScroll(); thrRender() } } });
+rm.addEventListener && rm.addEventListener('change',()=>{ if(!thr.el.hidden) thrSetup() });
 
 /* ================= Wiring ================= */
-function enterStore(id='welcome'){
-  const ent=$('#entrance');
-  const open=()=>{ ent.hidden=true; $('#store').hidden=false; $('#mini').hidden=false;
-    const walker=$('#walker'), walkIn=!calm() && innerWidth>760;
-    if(walkIn){ walker.style.transition='none'; walker.style.left='-160px'; void walker.offsetWidth; walker.style.transition='' }
-    go(id,{animate:walkIn});
-    if(walkIn) setTimeout(()=>act('is-waving',1700,walker),1100);
-    scrollTo({top:0}); $('#content').focus({preventScroll:true}) };
-  if(calm()) return open();
-  ent.classList.add('open'); setTimeout(open, 1500);
-}
 $('#doors').addEventListener('click',()=>enterStore());
 $('#enter').addEventListener('click',()=>enterStore());
 $$('[data-jump]').forEach(b=>b.addEventListener('click',()=>enterStore(b.dataset.jump)));
-$('#logo').addEventListener('click',()=>{ $('#store').hidden=true; $('#mini').hidden=true; const e=$('#entrance'); e.classList.remove('open'); e.hidden=false; try{ history.replaceState(null,'',location.pathname+location.search) }catch(err){} scrollTo({top:0}); $('#enter').focus() });
+$('#logo').addEventListener('click',()=>{ $('#store').hidden=true; $('#mini').hidden=true; thr.el.hidden=false; thr.entered=false; thr.target='welcome'; try{ history.replaceState(null,'',location.pathname+location.search) }catch(err){} scrollTo({top:0,behavior:'instant'}); thrSetup(); $('#enter').focus() });
 document.addEventListener('click',e=>{ const g=e.target.closest('[data-go]'); if(!g) return; const d=g.closest('dialog'); if(d) d.close(); go(g.dataset.go,{focus:true}) });
 $('#next-tip').addEventListener('click',()=>{ const t=current.tips[tipIdx%current.tips.length]; tipIdx++; say(t,'happy'); act('is-waving',1700,$('#walker')) });
 $('#helpsign').addEventListener('click',callHelp);
@@ -1410,9 +1544,9 @@ if(window.claude && claude.use){
 /* Boot */
 mountShelbies(); buildScene(); applySettings();
 $('#mini-text').textContent=AISLES[0].intro;
-$('[data-shelby="door"] .shelby').classList.add('is-waving');
-setTimeout(()=>act('is-waving',1700,$('.greet')),1600);
+setTimeout(()=>act('is-waving',1700,$('.pl-host')),900);
 const startId=(location.hash||'').slice(1);
-if(AISLES.some(a=>a.id===startId)){ $('#entrance').hidden=true; $('#store').hidden=false; $('#mini').hidden=false; go(startId,{animate:false}) }
+if(AISLES.some(a=>a.id===startId)){ thr.entered=true; $('#entrance').hidden=true; $('#store').hidden=false; $('#mini').hidden=false; go(startId,{animate:false}) }
+else { thrSetup(); document.fonts && document.fonts.ready.then(()=>{ if(!thr.el.hidden) thrSetup() }) }
 </script>
 </html>
