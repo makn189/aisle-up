@@ -298,7 +298,8 @@ ul.tidy{margin:8px 0 0; padding-left:1.2em} ul.tidy li{margin:4px 0}
 .prod.bottle .pack::after{content:""; position:absolute; top:-32px; left:33%; right:33%; height:10px; border-radius:4px; background:var(--ink2)}
 .prod:hover{transform:translateY(-6px)}
 .prod[aria-pressed="true"]{transform:translateY(-16px) rotate(-5deg); filter:drop-shadow(0 14px 10px var(--shadow))}
-.inspector{position:sticky; top:80px}
+/* sits below the top bar and the aisle strip, and scrolls itself if taller than the space left */
+.inspector{position:sticky; top:calc(env(safe-area-inset-top,0px) + var(--tb-h,59px) + 76px + 16px); max-height:calc(100vh - var(--tb-h,59px) - 76px - 32px); overflow-y:auto; scroll-margin-top:calc(env(safe-area-inset-top,0px) + var(--tb-h,59px) + 64px + 12px)}
 .inspector .tagline{display:inline-block; margin-top:10px; background:var(--sun); color:var(--label-ink); font-weight:800; padding:4px 12px; border-radius:999px; font-size:.9rem}
 .inspector h3{font-size:1.5rem; margin:4px 0 8px}
 .inspector .hint{font-size:.85rem; color:var(--ink2); margin-top:12px}
@@ -575,7 +576,7 @@ dialog.centre{border-radius:26px; width:min(560px,calc(100% - 32px))}
 /* ---------- Responsive ---------- */
 @media (max-width:860px){
   .shelf-wrap,.till,.fitting,.stepper{grid-template-columns:minmax(0,1fr)}
-  .inspector{position:static}
+  .inspector{position:static; max-height:none; overflow:visible}
   .star{grid-template-columns:repeat(2,minmax(0,1fr))}
   .steps{flex-direction:row; overflow-x:auto; padding-bottom:4px}
   .steps button{width:auto; white-space:nowrap}
@@ -1476,7 +1477,9 @@ welcome(){
   const show=(btn)=>{ const [si,pi]=btn.dataset.p.split('-').map(Number), p=PRODUCTS[si].items[pi];
     $$('.prod').forEach(b=>b.setAttribute('aria-pressed', b===btn));
     $('#inspect').innerHTML=`<div class="eyebrow">${PRODUCTS[si].shelf}</div><h3>${p.title}</h3><p>${p.body}</p><span class="tagline">${p.good}</span><p class="hint">Pick up another product to compare.</p>`; };
-  $$('.prod').forEach(b=>b.addEventListener('click',()=>{ show(b); act('is-looking',2400) }));
+  $$('.prod').forEach(b=>b.addEventListener('click',()=>{ show(b); act('is-looking',2400);
+    // on phones the info card sits under the shelves, so bring it into view
+    const card=$('#inspect'), r=card.getBoundingClientRect(); if(matchMedia('(max-width:860px)').matches && (r.top<0||r.top>innerHeight*.6)) card.scrollIntoView({block:'start', behavior:calm()?'auto':'smooth'}) }));
   show($('.prod'));
 },
 jobs(){
