@@ -421,9 +421,53 @@ label.fl{display:block; font-weight:800; margin-bottom:6px}
 .meter{display:flex; gap:4px; margin:4px 0 8px} .meter i{width:22px; height:10px; border-radius:4px; background:var(--line)} .meter i.on{background:var(--teal)}
 
 /* Checkout */
-.bigreceipt{max-width:460px; margin:0 auto}
-.bigreceipt .row{display:flex; justify-content:space-between; gap:14px; padding:6px 0; font-variant-numeric:tabular-nums}
-.bigreceipt .total{border-top:2px dashed rgba(44,33,65,.35); margin-top:8px; padding-top:10px; font-weight:700; font-size:1.05rem}
+/* The till: a pinned counter where the receipt feeds out of the printer as you scroll */
+.till-scene{--strip-h:76px; position:relative; height:240vh; margin-top:10px}
+.till-stage{position:sticky; top:calc(var(--tb-h,59px) + var(--strip-h)); height:calc(100vh - var(--tb-h,59px) - var(--strip-h)); height:calc(100svh - var(--tb-h,59px) - var(--strip-h));
+  display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.1fr); gap:24px; align-items:start; padding-top:18px; overflow:hidden}
+.till-scene.static{height:auto}
+.till-scene.static .till-stage{position:relative; top:0; height:auto; padding-bottom:30px}
+.till-copy{align-self:center; max-width:30ch}
+.till-h{font-size:clamp(2rem,4.4vw,3.4rem); line-height:1.02; text-wrap:balance}
+.till-say{margin-top:12px; color:var(--ink2); font-size:1.1rem; min-height:3.2em}
+.till-rig{position:relative; display:flex; flex-direction:column; align-items:center; z-index:2; transform-origin:50% 0}
+/* Shelby stands behind the counter, so the counter hides her feet */
+.till-shelby{position:absolute; right:3%; bottom:calc(22% - 34px); width:clamp(96px,10vw,140px); z-index:0}
+.till-machine{position:relative; z-index:1; width:250px; background:linear-gradient(180deg,#5B4A8C,#463A70); border-radius:22px 22px 12px 12px; padding:14px 16px 26px; box-shadow:0 14px 0 -4px rgba(0,0,0,.25),inset 0 3px 0 rgba(255,255,255,.18)}
+.till-screen{background:#1E2B22; border-radius:10px; padding:8px 12px; display:flex; justify-content:space-between; align-items:baseline; font-family:var(--font-mono); color:#7DF0A2; box-shadow:inset 0 0 0 3px rgba(0,0,0,.35)}
+.till-screen span{font-size:.7rem; letter-spacing:.12em; opacity:.8}
+.till-screen b{font-size:1.15rem; font-weight:500; font-variant-numeric:tabular-nums}
+.till-keys{display:grid; grid-template-columns:repeat(4,1fr); gap:7px; margin-top:12px}
+.till-keys i{height:18px; border-radius:6px; background:#EDE6FA; box-shadow:0 3px 0 #B9ABDB}
+.till-keys i:nth-child(4n){background:#FFC23D; box-shadow:0 3px 0 #C98F13}
+.till-slot{position:absolute; left:50%; bottom:10px; width:200px; height:8px; margin-left:-100px; border-radius:4px; background:#241B33}
+.receipt-paper{--cut:100%; position:relative; z-index:2; width:min(290px,86vw); margin-top:-14px; padding:14px 16px 18px; background:#FFFDF6; color:#2C2141; font-family:var(--font-mono); font-size:.74rem; line-height:1.35;
+  box-shadow:0 10px 22px rgba(40,20,10,.22); clip-path:inset(0 0 var(--cut) 0); transform-origin:50% 0; transition:transform .5s var(--ease-bounce)}
+.receipt-paper.torn{transform:rotate(-2.4deg) translateY(10px); clip-path:none;
+  -webkit-mask:linear-gradient(#000 0 0) top/100% calc(100% - 8px) no-repeat,conic-gradient(from -45deg at bottom,#0000,#000 1deg 89deg,#0000 90deg) bottom/14px 8px repeat-x;
+  mask:linear-gradient(#000 0 0) top/100% calc(100% - 8px) no-repeat,conic-gradient(from -45deg at bottom,#0000,#000 1deg 89deg,#0000 90deg) bottom/14px 8px repeat-x}
+.receipt-paper .rp-line,.receipt-paper .rl{visibility:hidden}
+.receipt-paper .on{visibility:visible}
+.rp-head{text-align:center; padding-bottom:8px; border-bottom:1.5px dashed rgba(44,33,65,.35); margin-bottom:6px}
+.rp-items{list-style:none; margin:0; padding:0}
+.rl{display:flex; justify-content:space-between; align-items:center; gap:8px; padding:2px 0}
+.rl-name em{font-style:normal; opacity:.75}
+.rl-ok{font-weight:700; color:#1D8253}
+.rl-fix{flex:none; border:1.5px solid #B33A26; color:#B33A26; background:none; font:inherit; font-size:.66rem; font-weight:700; letter-spacing:.04em; border-radius:5px; padding:1px 5px; cursor:pointer}
+.rl-fix:hover{background:#B33A26; color:#FFFDF6}
+.rp-total,.rp-change{display:flex; justify-content:space-between; gap:8px}
+.rp-total{border-top:1.5px dashed rgba(44,33,65,.35); margin-top:6px; padding-top:6px; font-weight:700; font-size:.86rem}
+.rp-bar{height:30px; margin:10px 18px 4px; background:repeating-linear-gradient(90deg,#2C2141 0 2px,transparent 2px 4px,#2C2141 4px 7px,transparent 7px 9px,#2C2141 9px 10px,transparent 10px 13px)}
+.rp-foot{text-align:center; font-size:.66rem; letter-spacing:.06em}
+.till-counter{position:absolute; left:-30%; right:-30%; bottom:0; height:22%; z-index:1; background:linear-gradient(var(--wood),var(--wood2)); border-top:6px solid var(--wood2); box-shadow:0 -6px 0 rgba(255,255,255,.15) inset}
+.plan{list-style:none; margin:0; padding:0; display:grid; gap:14px}
+.plan li{display:flex; gap:16px; align-items:flex-start; background:var(--surface); border:2px solid var(--line); border-radius:20px; padding:18px 20px}
+.plan li:first-child{border-color:var(--coral)}
+.plan-n{flex:none; width:44px; height:44px; border-radius:50%; display:grid; place-items:center; background:var(--coral); color:var(--on-accent); font-family:var(--font-display); font-weight:700; font-size:1.3rem}
+.plan li:not(:first-child) .plan-n{background:var(--bg2); color:var(--ink)}
+.plan h4{font-size:1.2rem; margin-bottom:4px}
+.plan p{color:var(--ink2); margin-bottom:10px}
+.plan a.btn{text-decoration:none}
 .links{list-style:none; padding:0; margin:0; display:grid; gap:10px}
 .links li{background:var(--surface); border:2px solid var(--line); border-radius:16px; padding:12px 16px}
 .links span{display:block; font-size:.93rem; color:var(--ink2)}
@@ -557,6 +601,18 @@ dialog.centre{border-radius:26px; width:min(560px,calc(100% - 32px))}
   .beat p{font-size:.95rem}
   .beat .actions{margin-top:12px}
   .strip{height:64px; --pad:26px}
+  .till-scene{--strip-h:64px; height:220vh}
+  .till-stage{grid-template-columns:minmax(0,1fr); gap:12px; padding-top:12px; align-content:start}
+  .till-copy{align-self:start; max-width:none}
+  .till-h{font-size:1.9rem}
+  .till-say{font-size:.98rem; min-height:2.9em; margin-top:6px}
+  .till-machine{width:210px; padding:10px 12px 22px}
+  .till-keys i{height:13px}
+  .till-slot{width:170px; margin-left:-85px}
+  .till-shelby{display:none}
+  .receipt-paper{font-size:.68rem; padding:12px 12px 16px}
+  .plan li{padding:14px 14px; gap:12px}
+  .plan-n{width:36px; height:36px; font-size:1.1rem}
   .strip-bays{height:36px}
   .bay{height:36px; width:24px; margin-left:-12px}
   .bay::before{height:9px}
@@ -768,7 +824,7 @@ const AISLES = [
     help:["Type your answer in the box and press 'Ring it through' for feedback.","Each answer you finish stamps your loyalty card.","Stuck? Press 'Show model answer' to see an example."]},
   {id:'checkout', n:'£', name:'Checkout', c:'--sun',
     lead:'Your progress so far, and where to find real retail jobs and support in the UK.',
-    intro:"Look at you, all checked out and ready to apply! I'm proper proud.",
+    intro:"Step up to the till! I'll ring up everything you did in the store.",
     tips:["Apply for a few jobs, not just one. Hearing 'no' sometimes is part of it, for everyone.",
       "Keep a list of where you've applied and when, so you can follow up.",
       "You can come back and practise anytime. I'll be here!"],
@@ -1140,7 +1196,7 @@ function go(id, opts={}){
   const signs=$('#signs'), sg=$(`.sign[data-go="${a.id}"]`);
   signs.scrollTo({left: sg.offsetLeft - (signs.clientWidth - sg.offsetWidth)/2, behavior: calm()?'auto':'smooth'});
   requestAnimationFrame(()=>walkTo(a.id, opts.animate!==false));
-  say(a.intro, a.id==='checkout'?'excited':'happy', 4000);
+  say(a.intro, 'happy', 4000);
   if(opts.focus){ main.focus({preventScroll:true}); const top=$('#scene').getBoundingClientRect().top+scrollY-60; if(scrollY>top) scrollTo({top, behavior:calm()?'auto':'smooth'}) }
 }
 function stepAisle(dir){ const i=AISLES.indexOf(current)+dir; if(i>=0&&i<AISLES.length) go(AISLES[i].id,{focus:true}) }
@@ -1369,23 +1425,43 @@ practice(){
     <div class="card" style="margin-top:16px"><h4 style="font-size:1.05rem">How it works</h4><ul class="tidy"><li>I check your answer for the key points interviewers listen for.</li><li>Then you see a model answer to compare.</li><li class="ai-only" style="display:list-item">Want more detail? "Get feedback from Claude" scores your answer for STAR and customer focus.</li></ul></div></aside></div>`;
 },
 checkout(){
-  const stamps=Object.keys(state.stamps).length, ticks=Object.values(state.checks).filter(Boolean).length;
-  const visited=state.visited.filter(v=>v!=='checkout').length, drafted=Object.values(state.drafts).some(d=>d && d.trim().split(/\s+/).length>=20);
-  return `<div class="grid2" style="align-items:start">
-    <div class="receipt bigreceipt"><div class="meta"><span>AISLE UP</span><span>${new Date().toLocaleDateString('en-GB')}</span></div>
-      <div class="row"><span>Aisles visited</span><span>${visited}/6</span></div>
-      <div class="row"><span>Practice questions stamped</span><span>${stamps}/10</span></div>
-      <div class="row"><span>Application steps read</span><span>${state.steps.length}/${APP_STEPS.length}</span></div>
-      <div class="row"><span>Written answer drafted</span><span>${drafted?'Yes':'Not yet'}</span></div>
-      <div class="row"><span>Prep checklist ticked</span><span>${ticks}/${CHECKLIST.length}</span></div>
-      <div class="row"><span>Breathing exercise</span><span>${state.breathed?'Done':'Not yet'}</span></div>
-      <div class="row total"><span>Confidence</span><span>Priceless</span></div>
-      <p style="text-align:center;margin-top:12px;font-size:.85rem">Thank you for shopping at Aisle Up.<br>Now go and get that job!</p></div>
-    <div><div class="btnrow" style="margin-top:0"><button class="btn" id="celebrate">Ring up my receipt</button></div>
-      <p style="margin-top:14px">${stamps<10?`You've got <b>${10-stamps}</b> practice question${10-stamps===1?'':'s'} left at the Practice Till. Want to finish your loyalty card first?`:`Full loyalty card! You're properly prepared.`}</p>
-      <h3 style="margin:22px 0 10px;font-size:1.3rem">Where to find jobs and help</h3>
-      <ul class="links">${RESOURCES.map(([n,u,d])=>`<li><a href="${u}" target="_blank" rel="noopener">${n}</a><span>${d}</span></li>`).join('')}
-        <li><b>Shop careers pages</b><span>Search the name of a shop you like plus "careers" to find their jobs page. Most big retailers list every store's vacancies there.</span></li></ul></div></div>`;
+  const r=receiptData();
+  const row=i=>`<li class="rl${i.ok?'':' miss'}"><span class="rl-name">${i.label}${i.qty?` <em>${i.qty}</em>`:''}</span>${i.ok
+    ? '<span class="rl-ok" aria-label="scanned">✓</span>'
+    : `<button class="rl-fix" data-go="${i.go}" title="${i.fix}" aria-label="Not scanned: ${i.fix}">NOT SCANNED</button>`}</li>`;
+  return `<section class="block till-scene" id="till-scene" aria-labelledby="till-title">
+    <div class="till-stage">
+      <div class="till-copy">
+        <h3 id="till-title" class="till-h">Ring it up.</h3>
+        <p class="till-say" id="till-say">Shelby's ready to scan everything you did in the store.</p>
+      </div>
+      <div class="till-shelby" data-shelby="till"></div>
+      <div class="till-rig">
+        <div class="till-machine" aria-hidden="true">
+          <div class="till-screen"><span>TOTAL</span><b id="till-total">READY</b></div>
+          <div class="till-keys">${'<i></i>'.repeat(12)}</div>
+          <div class="till-slot"></div>
+        </div>
+        <div class="receipt-paper" id="receipt-paper">
+          <div class="rp-line rp-head">AISLE UP<br>THE HIGH STREET<br>${new Date().toLocaleDateString('en-GB')} · CASHIER: SHELBY</div>
+          <ol class="rp-items">${r.items.map(row).join('')}</ol>
+          <div class="rp-line rp-total"><span>ITEMS SCANNED</span><span>${r.scanned} of ${r.items.length}</span></div>
+          <div class="rp-line rp-change"><span>CHANGE DUE</span><span>MORE CONFIDENCE</span></div>
+          <div class="rp-line rp-bar" aria-hidden="true"></div>
+          <div class="rp-line rp-foot">THANK YOU FOR SHOPPING AT AISLE UP</div>
+        </div>
+      </div>
+      <div class="till-counter" aria-hidden="true"></div>
+    </div>
+  </section>
+  <section class="block" aria-labelledby="plan-title"><h3 id="plan-title">Your next three steps</h3>
+    <p class="note">Made from your receipt. Start with number 1.</p>
+    <ol class="plan">${nextSteps(r).map((s,i)=>`<li><span class="plan-n" aria-hidden="true">${i+1}</span><div><h4>${s.t}</h4><p>${s.d}</p>${s.go?`<button class="btn small${i?' ghost':''}" data-go="${s.go}">${s.btn}</button>`:s.href?`<a class="btn small${i?' ghost':''}" href="${s.href}" target="_blank" rel="noopener">${s.btn}</a>`:''}</div></li>`).join('')}</ol>
+  </section>
+  <section class="block" aria-labelledby="links-title"><h3 id="links-title">Where to find jobs and help</h3>
+    <ul class="links">${RESOURCES.map(([n,u,d])=>`<li><a href="${u}" target="_blank" rel="noopener">${n}</a><span>${d}</span></li>`).join('')}
+      <li><b>Shop careers pages</b><span>Search the name of a shop you like plus "careers" to find their jobs page. Most big retailers list every store's vacancies there.</span></li></ul>
+  </section>`;
 },
 };
 
@@ -1509,11 +1585,95 @@ practice(){
   $('#ai-fb').addEventListener('click',()=>aiFeedback(QUESTIONS[qi].q, ta.value));
   show();
 },
-checkout(){
-  $('#celebrate').addEventListener('click',()=>{ act('is-celebrating',1900); mood('excited',3000); confetti(); say("Ka-ching! You're ready. Go and show them what you've got!",'excited',4000) });
-  setTimeout(()=>{ act('is-celebrating',1900,$('#walker')); confetti() }, 700);
-},
+checkout(){ tillSetup() },
 };
+
+/* ================= The till: your receipt prints as you scroll ================= */
+function receiptData(){
+  const stamps=Object.keys(state.stamps).length, ticks=Object.values(state.checks).filter(Boolean).length;
+  const drafted=Object.values(state.drafts).some(d=>d && d.trim().split(/\s+/).length>=20);
+  const items=[
+    // Short till-style names so every item fits on one receipt line
+    ...AISLES.filter(a=>a.id!=='checkout').map((a,i)=>({label:`AISLE ${a.n} ${['WELCOME','JOBS','APPLYING','INTERVIEWS','FITTING ROOM','PRACTICE TILL'][i]}`, ok:state.visited.includes(a.id), go:a.id, fix:`Walk to Aisle ${a.n}: ${a.name}`})),
+    {label:'MOCK INTERVIEW', qty:`${stamps}/${QUESTIONS.length}`, ok:stamps>=QUESTIONS.length, go:'practice', fix:'Finish it at the Practice Till'},
+    {label:'APPLICATION STEPS', qty:`${state.steps.length}/${APP_STEPS.length}`, ok:state.steps.length>=APP_STEPS.length, go:'apply', fix:'Read them in Aisle 3'},
+    {label:'WRITTEN ANSWER', ok:drafted, go:'apply', fix:'Draft one in Aisle 3'},
+    {label:'PREP CHECKLIST', qty:`${ticks}/${CHECKLIST.length}`, ok:ticks>=CHECKLIST.length, go:'prepare', fix:'Tick it off in Aisle 5'},
+    {label:'BREATHING EXERCISE', ok:state.breathed, go:'prepare', fix:'Try it in Aisle 5'},
+  ];
+  return {items, scanned:items.filter(i=>i.ok).length, stamps, ticks, drafted};
+}
+function nextSteps(r){
+  const left=QUESTIONS.length-r.stamps, todo=CHECKLIST.length-r.ticks, s=[];
+  if(left>0) s.push({t:'Finish your mock interview', d:`${left} question${left===1?'':'s'} left at the Practice Till. It's the closest thing to the real interview.`, go:'practice', btn:'Go to the Practice Till'});
+  if(!r.drafted) s.push({t:'Write your "Why here?" answer', d:'Draft it once now and you can reuse it in every application you send.', go:'apply', btn:'Open the Application Counter'});
+  if(todo>0) s.push({t:'Get your interview day sorted', d:`${todo} thing${todo===1?'':'s'} left on your interview prep checklist.`, go:'prepare', btn:'Open the Fitting Room'});
+  s.push({t:'Find three jobs to apply for', d:"Search the government's free job site, or a shop's careers page, and pick three that fit your hours.", href:'https://findajob.dwp.gov.uk', btn:'Search Find a job'});
+  s.push({t:'Line up a reference', d:'Ask a teacher, tutor, coach or volunteering leader now if you can give their name, so you are ready the moment you get an offer.'});
+  s.push({t:'Apply, then follow up', d:'Keep a list of where you applied and when. Heard nothing after two weeks? A polite email asking for an update is fine.'});
+  return s.slice(0,3);
+}
+const till={lines:[], on:-1, torn:false, cheered:false, raf:0, r:null};
+function tillSetup(){
+  till.r=receiptData(); till.on=-1; till.torn=false; till.cheered=false;
+  till.lines=$$('#receipt-paper .rp-line, #receipt-paper .rl');
+  const scene=$('#till-scene');
+  scene.classList.toggle('static', calm());
+  if(calm()){ till.lines.forEach(l=>l.classList.add('on')); tillTear(true); return }
+  tillFit();
+  requestAnimationFrame(tillRender);
+}
+// Shrink the till and its full-length receipt to fit short screens
+function tillFit(){
+  const stage=$('.till-stage'), rig=$('.till-rig');
+  if(!stage || !rig || $('#till-scene').classList.contains('static')) return;
+  rig.style.transform='';
+  // Leave room for the torn receipt, which tilts and drops by about 16px
+  const avail=stage.getBoundingClientRect().bottom - rig.getBoundingClientRect().top - 44;
+  const s=Math.min(1, avail/rig.offsetHeight);
+  rig.style.transform = s<1 ? `scale(${s.toFixed(3)})` : '';
+}
+function tillRender(){
+  till.raf=0;
+  const scene=$('#till-scene'); if(!scene || $('#store').hidden || current.id!=='checkout' || calm()) return;
+  const stage=scene.querySelector('.till-stage'), stickyTop=parseFloat(getComputedStyle(stage).top)||0;
+  const span=Math.max(1, scene.offsetHeight-stage.offsetHeight);
+  const p=clamp01((scrollY-(scene.getBoundingClientRect().top+scrollY-stickyTop))/span);
+  const pr=clamp01((p-.06)/.62), L=till.lines.length, on=Math.min(L-1, Math.floor(pr*L+.001)-1);
+  if(on!==till.on){
+    till.lines.forEach((l,i)=>l.classList.toggle('on',i<=on));
+    const paper=$('#receipt-paper'), last=till.lines[on];
+    const cut = last ? paper.offsetHeight-(last.offsetTop+last.offsetHeight)-4 : paper.offsetHeight;
+    paper.style.setProperty('--cut',Math.max(0,cut)+'px');
+    const items=till.lines.filter((l,i)=>i<=on && l.classList.contains('rl'));
+    const printedMiss=items.some(l=>l.classList.contains('miss'));
+    const n=items.filter(l=>!l.classList.contains('miss')).length;
+    $('#till-total').textContent = on<0 ? 'READY' : `${n} ITEM${n===1?'':'S'}`;
+    if(on>=0 && !till.torn){
+      $('#till-say').textContent = printedMiss ? "Skipped something? It prints as NOT SCANNED. Tap it to go back and get it." : 'Every aisle you walked, every question you practised.';
+      const sh=$('.till-shelby .shelby'); if(sh) sh.dataset.mood='thinking';
+    }
+    till.on=on;
+  }
+  if(p>.76 && on>=L-1 && !till.torn) tillTear(false);
+  if(p<.7 && till.torn) tillUntear();
+}
+function tillTear(still){
+  till.torn=true;
+  const r=till.r, good=r.scanned>=Math.ceil(r.items.length/2), paper=$('#receipt-paper');
+  paper.classList.add('torn'); paper.style.setProperty('--cut','0px');
+  $('#till-total').textContent=`${r.scanned} OF ${r.items.length}`;
+  $('#till-title').textContent = r.scanned===r.items.length ? 'Fully stocked. Go get that job.' : good ? "That's a proper haul." : 'Good start. There is more on the shelves.';
+  $('#till-say').textContent = 'Your next three steps are just below, made from this receipt.';
+  const sh=$('.till-shelby .shelby'); if(sh) sh.dataset.mood = good ? 'excited' : 'reassure';
+  if(!still && !till.cheered){ till.cheered=true; if(good){ act('is-celebrating',1900,$('.till-stage')); confetti() } else act('is-waving',1700,$('.till-stage')) }
+}
+function tillUntear(){
+  till.torn=false; $('#receipt-paper').classList.remove('torn'); till.on=-2;
+  $('#till-title').textContent='Ring it up.';
+}
+addEventListener('scroll',()=>{ if(current.id==='checkout' && !till.raf) till.raf=requestAnimationFrame(tillRender) },{passive:true});
+addEventListener('resize',()=>{ if(current.id==='checkout' && !$('#store').hidden){ tillFit(); if(!till.raf) till.raf=requestAnimationFrame(tillRender) } });
 
 /* ================= Helpers ================= */
 function wc(t){ const m=t.trim().match(/\S+/g); return m?m.length:0 }
