@@ -1,0 +1,16 @@
+# Netlify settings for Aisle Up: a single static page, so there is nothing to build.
+[build]
+  publish = "."
+  command = ""
+
+# Unknown paths go back to the store entrance instead of a 404
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
